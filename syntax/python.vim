@@ -148,12 +148,13 @@ syn keyword pythonStatement     pass raise
 syn keyword pythonStatement     global assert
 syn keyword pythonStatement     lambda
 syn keyword pythonStatement     with
-syn keyword pythonStatement     def class nextgroup=pythonFunction skipwhite
+"syn keyword pythonStatement     def class nextgroup=pythonFunction skipwhite
 syn keyword pythonRepeat        for while
 syn keyword pythonConditional   if elif else
 syn keyword pythonImport        import
 syn keyword pythonException     try except finally
 syn keyword pythonOperator      and in is not or
+syn keyword pythonSelf          self
 
 syn match pythonStatement   "\<yield\>" display
 syn match pythonImport      "\<from\>" display
@@ -170,6 +171,18 @@ else
   syn keyword pythonBoolean     True False
   syn match   pythonFunction    "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
 endif
+
+" 
+" Class and method definitions
+"
+syn region  pythonFuncDef  start='^\s\{-}def ' end=':' contains=pythonDef,pythonFuncName,pythonSelf
+syn keyword pythonDef      def contained skipwhite
+syn match   pythonFuncName "\<[a-zA-Z_][a-zA-Z0-9_]\{-}\>\%((\)\@=" contained
+
+syn region  pythonClassDef start='^\s\{-}class ' end=':' contains=pythonClass,pythonClassName
+syn keyword pythonClass class contained skipwhite
+syn match   pythonClassName "\<[a-zA-Z_][a-zA-Z0-9_]\{-}\>\%((\)\@=" contained
+  "syn region pythonString   start=+[bB]\='+ skip=+\\\\\|\\'\|\\$+ excludenl end=+'+ end=+$+ keepend contains=pythonBytesEscape,pythonBytesEscapeError,pythonUniEscape,pythonUniEscapeError,@Spell
 
 "
 " Decorators (new in Python 2.4)
@@ -469,9 +482,9 @@ endif
 if version >= 508 || !exists("did_python_syn_inits")
   if version <= 508
     let did_python_syn_inits = 1
-    command -nargs=+ HiLink hi link <args>
+    command! -nargs=+ HiLink hi link <args>
   else
-    command -nargs=+ HiLink hi def link <args>
+    command! -nargs=+ HiLink hi def link <args>
   endif
 
   HiLink pythonStatement        Statement
@@ -481,6 +494,11 @@ if version >= 508 || !exists("did_python_syn_inits")
   HiLink pythonRepeat           Repeat
   HiLink pythonException        Exception
   HiLink pythonOperator         Operator
+  HiLink pythonSelf             Type
+  HiLink pythonDef              RubyDefine
+  HiLink pythonFuncName         Function
+  HiLink pythonClass            Statement
+  HiLink pythonClassName        Type
 
   HiLink pythonDecorator        Define
   HiLink pythonDottedName       Function
